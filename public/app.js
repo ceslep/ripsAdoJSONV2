@@ -233,7 +233,7 @@ $(document).ready(() => {
 		var cell = $(celda).closest('td');
 		var cellIndex = cell[0].cellIndex
 		//console.log(cellIndex);
-		if (cellIndex >= 0) {
+		if (cellIndex >= 1) {
 			campo = celda.data("campo");
 			/*$("#infot").text("Información de la Celda");
 			$("#infot2").text($("#tableh").children().children().children()[cellIndex].innerText);

@@ -86,6 +86,32 @@
   max-height: 70vh;
   overflow-y: auto;
 }
+
+  /* Contenedor principal: menos padding y fuente reducida */
+  #infoPagos {
+    padding: 0.5rem;           /* Espacio interior más pequeño */
+    font-size: 0.85rem;        /* Reduce el tamaño de fuente global */
+  }
+
+  /* Ajusta cada alert anidado: menos padding y margin */
+  #infoPagos .alert {
+    padding: 0.4rem 0.75rem;    /* Valores más pequeños que los predeterminados */
+    margin-bottom: 0.3rem;     /* Espacio inferior reducido */
+    font-size: 0.85rem;        /* Que guarde la proporción con #infoPagos */
+  }
+
+  /* Si quieres que el título sea aún más pequeño */
+  #infoPagos h6 {
+    font-size: 1rem;           /* Ajusta a tu gusto: 1rem está bien para un subtítulo */
+    margin-bottom: 0.5rem;     /* Separación con los alerts */
+  }
+
+  /* Spinner: un poco más pequeño */
+  #infoPagos .spinner-border {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.15em;
+  }
   </style>
 </head>
 
@@ -131,35 +157,60 @@
   </nav>
   
   <div class="container-fluid">
-    <div class="alert alert-primary" role="alert" id="infoPagos">
-      <div class="d-flex justify-content-center">
-        <div class="spinner-border d-none" role="status" id="spnjson">
-          <span class="visually-hidden"></span>
-        </div>
-      </div>
-      <h4 class="text-ligh">Resumen Pagos</h4>
-
-      <div class="alert alert-light" role="alert">
-        Pagos en Efectivo:$<span id="pefectivo" class="infoMoney"></span>
-      </div>
-      <div class="alert alert-light" role="alert">
-        Pagos con Tarjeta:$<span id="ptarjeta" class="infoMoney"></span>
-      </div>
-      <div class="alert alert-light" role="alert">
-        Pagos con Transferencia:$<span id="ptransferencia" class="infoMoney"></span>
-      </div>
-      <div class="alert alert-secondary" role="alert">
-        Total:$<span id="ptotal" class="infoMoney"></span>
-      </div>
-      <div class="alert alert-secondary" role="alert">
-        Seleccionado:$<span id="ptotals" class="infoMoney"></span>
-      </div>
-      <div class="alert alert-secondary" role="alert">
-        Cantidad:<span id="pcantidad" class=""></span>
+  <div class="alert alert-primary" role="alert" id="infoPagos">
+    
+    <!-- Spinner centrado (solo muestra cuando quite la clase d-none) -->
+    <div class="d-flex justify-content-center mb-2">
+      <div class="spinner-border d-none" role="status" id="spnjson">
+        <span class="visually-hidden">Cargando...</span>
       </div>
     </div>
+    
+    <!-- Título reducido -->
+    <h6 class="text-dark-emphasis">Resumen Pagos</h6>
 
+    <!-- Fila de alertas responsivas -->
+    <div class="row">
+      <!-- Pagos en Efectivo -->
+      <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+        <div class="alert alert-light mb-0" role="alert">
+          Efectivo: $<span id="pefectivo" class="infoMoney"></span>
+        </div>
+      </div>
+      <!-- Pagos con Tarjeta -->
+      <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+        <div class="alert alert-light mb-0" role="alert">
+          Tarjeta: $<span id="ptarjeta" class="infoMoney"></span>
+        </div>
+      </div>
+      <!-- Pagos con Transferencia -->
+      <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+        <div class="alert alert-light mb-0" role="alert">
+          Transferencia: $<span id="ptransferencia" class="infoMoney"></span>
+        </div>
+      </div>
+      <!-- Total -->
+      <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+        <div class="alert alert-secondary mb-0" role="alert">
+          Total: $<span id="ptotal" class="infoMoney"></span>
+        </div>
+      </div>
+      <!-- Seleccionado -->
+      <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+        <div class="alert alert-secondary mb-0" role="alert">
+          Seleccionado: $<span id="ptotals" class="infoMoney"></span>
+        </div>
+      </div>
+      <!-- Cantidad -->
+      <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+        <div class="alert alert-secondary mb-0" role="alert">
+          Cantidad: <span id="pcantidad"></span>
+        </div>
+      </div>
+    </div>
+    
   </div>
+</div>
 
   
   <div class="table-responsive" id="tresp">

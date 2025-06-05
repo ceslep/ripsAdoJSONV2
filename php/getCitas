@@ -1,0 +1,54 @@
+<?php
+			header("Access-Control-Allow-Origin: *");
+			require_once("datos_conexion.php");
+			require("json_encode.php");
+			$enlace =  mysql_connect($host, $user, $pass);
+			if (isset($_REQUEST['paciente'])){
+				$paciente=$_REQUEST['paciente'];
+				if ($paciente==="undefined") unset($paciente);
+				
+			}	
+			if (isset($_REQUEST['fecha'])){
+				$paciente=$_REQUEST['fecha'];
+				if ($fecha==="undefined") unset($fecha);
+				
+			}	
+			//mysql_set_charset($enlace,"utf8");
+			mysql_query("SET CHARACTER SET utf8 ");
+			
+
+			
+			mysql_select_db($database,$enlace);
+			$sql="select paciente,citas.identificacion,nombres,citas.fecha,horas,procedimientos.nombre as procedimiento,vhoras from citas";
+			$sql.=" inner join paciente on citas.paciente=paciente.historia";
+			$sql.=" inner join procedimientos on citas.procedimiento=procedimientos.codigo and citas.tipo=procedimientos.tipoc";
+			
+			
+			$sql.=" where 1=1";
+			if (isset($fecha))
+			$sql.=" and citas.fecha='$fecha'";	
+			else
+			$sql.=" and citas.fecha=curdate()";
+			
+			if (isset($paciente)) $sql.=" and paciente.identificacion='$paciente'";
+			$sql.=" UNION ";
+			$sql.=" select paciente,cppre.identificacion,nombres,cppre.fecha,horas,cppre.procedimiento,vhoras from cppre";
+			$sql.=" inner join cppredata on cppre.paciente=cppredata.identificacion";
+		
+			$sql.=" where 1=1";
+			if (isset($fecha))
+			$sql.=" and cppre.fecha='$fecha'";	
+			else
+			$sql.=" and cppre.fecha=curdate()";
+			if (isset($paciente)) $sql.=" and cppredata.identificacion='$paciente'";
+			$sql.=" order by fecha,vhoras";
+			
+			//echo $sql;
+			
+			$resultado=mysql_query($sql,$enlace);
+			$datos=array();
+			while($dato=mysql_fetch_assoc($resultado)) $datos[]=$dato;
+			
+			echo json_encode($datos);
+			mysql_close($enlace);
+?>

@@ -1,0 +1,26 @@
+{
+  "name": "adoRips",
+  "version": "1.0.0",
+  "description": "Software de Historias Clinicas",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "run": ""
+  },
+  "author": "ceslep@gmail.com",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "http": "0.0.0",
+    "morgan": "^1.9.1",
+    "node-fetch": "^2.6.1",
+    "path": "^0.12.7",
+    "reload": "^3.0.3",
+    "socket.io": "^2.3.0",
+    "with-query": "^1.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}

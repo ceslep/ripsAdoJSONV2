@@ -27,36 +27,48 @@
 				if ($tipo==="undefined") unset($tipo);
 				
 			}	
+			mysql_select_db($database,$enlace);
 			//mysql_set_charset($enlace,"utf8");
 			mysql_query("SET CHARACTER SET utf8 ",$enlace);
-			$sql='select paciente.tdei,paciente.identificacion,';
-			$sql.='"" as coda,"4" as tu,paciente.apellido1,paciente.apellido2,paciente.nombre1,paciente.nombre2,';
+
+			$sql="UPDATE evolucion,paciente set evolucion.identificacion=paciente.identificacion where ";
+			$sql.=" evolucion.paciente=paciente.historia and evolucion.identificacion='0' ";
+			mysql_query($sql,$enlace);
+
+			
+			$sql="UPDATE evolucion,cppredata set evolucion.identificacion=cppredata.identificacion where ";
+			$sql.=" evolucion.paciente=cppredata.identificacion and evolucion.identificacion='0'";
+			mysql_query($sql,$enlace);
+
+
+			$sql='select if(round((to_days(curdate())-to_days(fecnac))/365.242159)<18,"TI","CC") as tdei,paciente.identificacion,';
+			$sql.='"76147" as coda,"4" as tu,paciente.apellido1,paciente.apellido2,paciente.nombre1,paciente.nombre2,fecnac,';
 			$sql.='round((to_days(curdate())-to_days(fecnac))/365.242159) as edad,';
 			$sql.='"1" as ume,left(sexo,1) as sexo,municipios.codepto,municipios.codmunic,"U" as zona';
 			$sql.=' from paciente';
 			$sql.=' left join municipios on paciente.ciudad_residencia=municipios.codigo';
-			$sql.=' inner join citas on paciente.historia=citas.paciente and citas.fecha=evolucion.fecha';
-			$sql.=" left join evolucion on citas.ind=evolucion.citasind";
-			$sql.=' where citas.asistio="S" and evolucion.arips="S" and';
-			$sql.=sprintf(" citas.fecha between '%s' and '$fecha2'",$fecha1,$fecha2);
+			$sql.=' inner join citas on paciente.historia=citas.paciente';
+			$sql.=" left join evolucion on citas.paciente=evolucion.paciente and evolucion.fecha=citas.fecha";
+			$sql.=' where evolucion.arips="S" and';
+			$sql.=sprintf(" citas.fecha between '%s' and '%s'",$fecha1,$fecha2);
 			$sql.=' and paciente.identificacion<>"0"';
 			$sql.=" UNION";
-			$sql.=' select cppredata.tdei,cppredata.identificacion,';
-			$sql.='"" as coda,"4" as tu,cppredata.apellido1,cppredata.apellido2,cppredata.nombre1,cppredata.nombre2,';
+			$sql.=' select if(round((to_days(curdate())-to_days(fecnac))/365.242159)<18,"TI","CC") as tdei,cppredata.identificacion,';
+			$sql.='"" as coda,"4" as tu,cppredata.apellido1,cppredata.apellido2,cppredata.nombre1,cppredata.nombre2,fecnac,';
 			$sql.='round((to_days(curdate())-to_days(fecnac))/365.242159) as edad,';
 			$sql.='"1" as ume,left(sexo,1) as sexo,municipios.codepto,municipios.codmunic,"U" as zona';
 			$sql.=' from cppredata';
 			$sql.=' left join municipios on cppredata.ciudad_residencia=municipios.codigo';
 			$sql.=' inner join cppre on cppredata.historia=cppre.paciente';
-			$sql.=" left join evolucion on cppre.ind=evolucion.citasind and cppre.fecha=evolucion.fecha";
-			$sql.=' where cppre.asistio="S" and evolucion.arips="S" and';
-			$sql.=sprintf(" cppre.fecha between '%s' and '$fecha2'",$fecha1,$fecha2);
+			$sql.=" left join evolucion on cppre.paciente=evolucion.paciente and evolucion.fecha=cppre.fecha";
+			$sql.=' where evolucion.arips="S" and';
+			$sql.=sprintf(" cppre.fecha between '%s' and '%s'",$fecha1,$fecha2);
 			$sql.=' and cppredata.identificacion<>"0"';
 			//$sql.=' order by fecha';
 			
 			//echo $sql;
 			//exit(0);
-			mysql_select_db($database,$enlace);
+			
 			
 			
 		

@@ -7,7 +7,7 @@
 		  	$database="qovgnzuu_instituto"; 
 		*/	
 			$host="localhost";
-            $user="root";
+           		 $user="root";
 		  	$pass="894035";
 		  	$database="ado"; 
 			$database_imagenes="ado_fotos"; 

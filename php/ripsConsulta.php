@@ -30,25 +30,27 @@
 			//mysql_set_charset($enlace,"utf8");
             mysql_query("SET CHARACTER SET utf8 ",$enlace);
             $sql="";
-            $sql.=" select evolucion.factura_consulta,'660010021401' as cod_prestador,paciente.tdei,paciente.identificacion,date_format(evolucion.fecha,'%d/%m/%Y') as fecha,";
-			$sql.=" evolucion.tipoprocedimiento,evolucion.finalidad,evolucion.causa_externa,evolucion.dxprincipalt,evolucion.diagnostico_relacionado1,";
-			$sql.=" evolucion.diagnostico_relecionado2,evolucion.diagnostico_relacionado3,'2' as tipo_dx,evolucion.valor_consulta,evolucion.valor_copago,evolucion.valor_consulta";
+            $sql.=" select evolucion.ind,evolucion.factura_consulta,'761470060801' as cod_prestador,if(round((to_days(curdate())-to_days(fecnac))/365.242159)<18,'TI','CC') as tdei,paciente.identificacion,date_format(evolucion.fecha,'%d/%m/%Y') as fecha,concat_ws(' ',evolucion.fecha,left(hora,5)) as fechaj,evolucion.hora as hora,";
+			$sql.=" '' as autorizacion,evolucion.tipoprocedimiento,'10' as finalidad_consulta,'15' as causa_externa,evolucion.diagnostico_principal,evolucion.diagnostico_relacionado1,";
+			$sql.=" evolucion.diagnostico_relacionado2,evolucion.diagnostico_relacionado3,'2' as tipo_dx,evolucion.valor_consulta,evolucion.valor_copago,evolucion.valor_consulta,'0' as neto,EditRight1";
 			$sql.="  from evolucion";
 			$sql.=" inner join paciente on evolucion.paciente=paciente.historia";
-			$sql.=" group by paciente.historia"
 			$sql.=sprintf(" where arips='S' and evolucion.fecha between '%s' and '%s'",$fecha1,$fecha2);
+			if (isset($paciente)) $sql.=sprintf(" and evolucion.identificacion='%s'",$paciente);
+			$sql.=" group by paciente.historia";
             $sql.=' UNION ';
-            $sql.=" select evolucion.factura_consulta,'660010021401' as cod_prestador,cppredata.tdei,cppredata.identificacion,date_format(evolucion.fecha,'%d/%m/%Y') as fecha,";
-			$sql.=" evolucion.tipoprocedimiento,evolucion.finalidad,evolucion.causa_externa,evolucion.dxprincipalt,evolucion.diagnostico_relacionado1,";
-			$sql.=" evolucion.diagnostico_relecionado2,evolucion.diagnostico_relacionado3,'2' as tipo_dx,evolucion.valor_consulta,evolucion.valor_copago,evolucion.valor_consulta";
+            $sql.=" select evolucion.ind,evolucion.factura_consulta,'761470060801' as cod_prestador,if(round((to_days(curdate())-to_days(fecnac))/365.242159)<18,'TI','CC'),cppredata.identificacion,date_format(evolucion.fecha,'%d/%m/%Y') as fecha,concat_ws(' ',evolucion.fecha,left(hora,5)) as fechaj,evolucion.hora as hora,";
+			$sql.=" '',evolucion.tipoprocedimiento,'10','15',evolucion.diagnostico_principal,evolucion.diagnostico_relacionado1,";
+			$sql.=" evolucion.diagnostico_relacionado2,evolucion.diagnostico_relacionado3,'2' as tipo_dx,evolucion.valor_consulta,evolucion.valor_copago,evolucion.valor_consulta,'0',EditRight1";
 			$sql.="  from evolucion";
 			$sql.=" inner join cppredata on evolucion.paciente=cppredata.historia";
 			$sql.=sprintf(" where arips='S' and evolucion.fecha between '%s' and '%s'",$fecha1,$fecha2);
-			$sql.=" group by cppredata.identificacion"
+			if (isset($paciente)) $sql.=sprintf(" and evolucion.identificacion='%s'",$paciente);
+			$sql.=" group by cppredata.identificacion";
 			$sql.=' order by fecha';
 			
-			//echo $sql;
-			//exit(0);
+		//	echo $sql;
+		//	exit(0);
 			mysql_select_db($database,$enlace);
 			
 			

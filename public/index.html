@@ -33,8 +33,8 @@
 
   <style>
     body {
-       overflow-y: auto;
-  min-height: 100vh;
+      overflow-y: auto;
+      min-height: 100vh;
     }
 
     .cuadro {
@@ -57,7 +57,7 @@
       text-align: center;
     }
 
-   
+
     .infoMoney {
 
       font-weight: bold;
@@ -83,35 +83,42 @@
     }
 
     #tresp {
-  max-height: 70vh;
-  overflow-y: auto;
-}
+      max-height: 70vh;
+      overflow-y: auto;
+    }
 
-  /* Contenedor principal: menos padding y fuente reducida */
-  #infoPagos {
-    padding: 0.5rem;           /* Espacio interior más pequeño */
-    font-size: 0.85rem;        /* Reduce el tamaño de fuente global */
-  }
+    /* Contenedor principal: menos padding y fuente reducida */
+    #infoPagos {
+      padding: 0.5rem;
+      /* Espacio interior más pequeño */
+      font-size: 0.85rem;
+      /* Reduce el tamaño de fuente global */
+    }
 
-  /* Ajusta cada alert anidado: menos padding y margin */
-  #infoPagos .alert {
-    padding: 0.4rem 0.75rem;    /* Valores más pequeños que los predeterminados */
-    margin-bottom: 0.3rem;     /* Espacio inferior reducido */
-    font-size: 0.85rem;        /* Que guarde la proporción con #infoPagos */
-  }
+    /* Ajusta cada alert anidado: menos padding y margin */
+    #infoPagos .alert {
+      padding: 0.4rem 0.75rem;
+      /* Valores más pequeños que los predeterminados */
+      margin-bottom: 0.3rem;
+      /* Espacio inferior reducido */
+      font-size: 0.85rem;
+      /* Que guarde la proporción con #infoPagos */
+    }
 
-  /* Si quieres que el título sea aún más pequeño */
-  #infoPagos h6 {
-    font-size: 1rem;           /* Ajusta a tu gusto: 1rem está bien para un subtítulo */
-    margin-bottom: 0.5rem;     /* Separación con los alerts */
-  }
+    /* Si quieres que el título sea aún más pequeño */
+    #infoPagos h6 {
+      font-size: 1rem;
+      /* Ajusta a tu gusto: 1rem está bien para un subtítulo */
+      margin-bottom: 0.5rem;
+      /* Separación con los alerts */
+    }
 
-  /* Spinner: un poco más pequeño */
-  #infoPagos .spinner-border {
-    width: 1rem;
-    height: 1rem;
-    border-width: 0.15em;
-  }
+    /* Spinner: un poco más pequeño */
+    #infoPagos .spinner-border {
+      width: 1rem;
+      height: 1rem;
+      border-width: 0.15em;
+    }
   </style>
 </head>
 
@@ -141,7 +148,7 @@
             <a class="dropdown-item" href="#" id="btnAactualizar">Actualizar</a>
             <a class="dropdown-item" href="#" id="btnBorrarActualizados">Desactualizar</a>
             <hr class="dropdown-divider">
-            <a class="dropdown-item" href="#" id="btnJSON">Generar JSON</a> 
+            <a class="dropdown-item" href="#" id="btnJSON">Generar JSON COOMEVA MP</a>
             <a class="dropdown-item" href="#" id="btnJSONFactura">Generar JSON con factura</a>
           </div>
         </a>
@@ -155,64 +162,68 @@
       <button class="btn btn-success" id="btnFechas">Cargar</button>
     </form>
   </nav>
-  
+
   <div class="container-fluid">
-  <div class="alert alert-primary" role="alert" id="infoPagos">
-    
-    <!-- Spinner centrado (solo muestra cuando quite la clase d-none) -->
-    <div class="d-flex justify-content-center mb-2">
-      <div class="spinner-border d-none" role="status" id="spnjson">
-        <span class="visually-hidden">Cargando...</span>
-      </div>
-    </div>
-    
-    <!-- Título reducido -->
-    <h6 class="text-dark-emphasis">Resumen Pagos.</h6>
+    <div class="alert alert-primary" role="alert" id="infoPagos">
 
-    <!-- Fila de alertas responsivas -->
-    <div class="row">
-      <!-- Pagos en Efectivo -->
-      <div class="col-12 col-sm-6 col-md-4 col-lg-2">
-        <div class="alert alert-light mb-0" role="alert">
-          Efectivo: $<span id="pefectivo" class="infoMoney"></span>
+      <!-- Spinner centrado (solo muestra cuando quite la clase d-none) -->
+      <div class="d-flex justify-content-center mb-2">
+        <div class="spinner-border d-none" role="status" id="spnjson">
+          <span class="visually-hidden d-none">Cargando...</span>
         </div>
       </div>
-      <!-- Pagos con Tarjeta -->
-      <div class="col-12 col-sm-6 col-md-4 col-lg-2">
-        <div class="alert alert-light mb-0" role="alert">
-          Tarjeta: $<span id="ptarjeta" class="infoMoney"></span>
+
+      <!-- Título reducido -->
+      <h6 class="text-dark-emphasis">Resumen Pagos.</h6>
+
+      <!-- Fila de alertas responsivas -->
+      <div class="row">
+        <!-- Pagos en Efectivo -->
+        <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+          <div class="alert alert-light mb-0" role="alert">
+            Efectivo: $<span id="pefectivo" class="infoMoney"></span>
+          </div>
+        </div>
+        <!-- Pagos con Tarjeta -->
+        <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+          <div class="alert alert-light mb-0" role="alert">
+            Tarjeta: $<span id="ptarjeta" class="infoMoney"></span>
+          </div>
+        </div>
+        <!-- Pagos con Transferencia -->
+        <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+          <div class="alert alert-light mb-0" role="alert">
+            Transferencia: $<span id="ptransferencia" class="infoMoney"></span>
+          </div>
+        </div>
+        <!-- Total -->
+        <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+          <div class="alert alert-secondary mb-0" role="alert">
+            Total: $<span id="ptotal" class="infoMoney"></span>
+          </div>
+        </div>
+        <!-- Seleccionado -->
+        <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+          <div class="alert alert-secondary mb-0" role="alert">
+            Seleccionado: $<span id="ptotals" class="infoMoney"></span>
+          </div>
+        </div>
+        <!-- Cantidad -->
+        <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+          <div class="alert alert-secondary mb-0" role="alert">
+            Cantidad: <span id="pcantidad"></span>
+          </div>
         </div>
       </div>
-      <!-- Pagos con Transferencia -->
-      <div class="col-12 col-sm-6 col-md-4 col-lg-2">
-        <div class="alert alert-light mb-0" role="alert">
-          Transferencia: $<span id="ptransferencia" class="infoMoney"></span>
-        </div>
-      </div>
-      <!-- Total -->
-      <div class="col-12 col-sm-6 col-md-4 col-lg-2">
-        <div class="alert alert-secondary mb-0" role="alert">
-          Total: $<span id="ptotal" class="infoMoney"></span>
-        </div>
-      </div>
-      <!-- Seleccionado -->
-      <div class="col-12 col-sm-6 col-md-4 col-lg-2">
-        <div class="alert alert-secondary mb-0" role="alert">
-          Seleccionado: $<span id="ptotals" class="infoMoney"></span>
-        </div>
-      </div>
-      <!-- Cantidad -->
-      <div class="col-12 col-sm-6 col-md-4 col-lg-2">
-        <div class="alert alert-secondary mb-0" role="alert">
-          Cantidad: <span id="pcantidad"></span>
-        </div>
-      </div>
+
     </div>
-    
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" role="switch" id="soloreporte">
+      <label class="form-check-label" for="switchCheckDefault">Mostrar solo los a reportar</label>
+    </div>
   </div>
-</div>
 
-  
+
   <div class="table-responsive" id="tresp">
     <table class="table table-bordered table-striped table-hover table-bordered table-sm">
       <thead class="thead-dark" id="tableh">
@@ -220,43 +231,43 @@
           <th>
             <h5>
               <div class="form-check">
-                <input type="checkbox" name="call" id="call" class="form-check-input position-static">
+                <input type="checkbox" name="call" id="call" class="form-check-input position-static mx-auto text-center">
             </h5>
-            </div>
-          </th>
-          <th>
-            <h5>Ident.</h5>
-          </th>
-          <th>
-            <h5>Nombres</h5>
-          </th>
-          <th>
-            <h5>Fecha</h5>
-          </th>
-          <th>
+  </div>
+  </th>
+  <th>
+    <h5>Ident.</h5>
+  </th>
+  <th>
+    <h5>Nombres</h5>
+  </th>
+  <th>
+    <h5>Fecha</h5>
+  </th>
+  <th>
 
-            <h5>F Pago</h5>
-          </th>
-          <th>
-            <h5>Valor</h5>
-          </th>
-          <th>
-            <h5>Info</h5>
-          </th>
-          <th>
-            <h5>T. Pago</h5>
-          </th>
-        </tr>
-      </thead>
-      <tbody id="dataInfo">
+    <h5>F Pago</h5>
+  </th>
+  <th>
+    <h5>Valor</h5>
+  </th>
+  <th>
+    <h5>Info</h5>
+  </th>
+  <th>
+    <h5>T. Pago</h5>
+  </th>
+  </tr>
+  </thead>
+  <tbody id="dataInfo">
 
-      </tbody>
-    </table>
+  </tbody>
+  </table>
 
   </div>
-  
 
- 
+
+
 
 
 
@@ -311,7 +322,7 @@
       </div>
     </div>
   </div>
-  
+
 
   <div id="smModal" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog"
     aria-labelledby="mySmallModalLabel" aria-hidden="true">

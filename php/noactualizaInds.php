@@ -17,7 +17,7 @@
 		
 				$ind=$dato->citasind;
 				$fecha=$dato->fecha;
-				$sql=" update evolucion set arips='S' where citasind='$ind' and fecha='$fecha';";
+				$sql=" update evolucion set arips='N' where citasind='$ind' and fecha='$fecha';";
 				$sqls.=$sql;
 				if (mysql_query($sql,$enlace)) $error=false;
 				else {

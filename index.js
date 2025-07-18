@@ -11,7 +11,9 @@ var app = express();
 var path = require('path');
 const fetch = require('node-fetch');
 app.use('/', express.static(__dirname + '/public'));
-app.use(bodyParser.json());
+
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 //app.use(logger('combined'));
 app.set('port', process.env.PORT || 3000);
 
@@ -29,7 +31,7 @@ const getData = async (file, fechas) => {
 
   console.log(`${URL}${file}.php`);
   try {
-    let data = `?fecha1=${fechas.fecha1}&fecha2=${fechas.fecha2}`;
+    let data = `?fecha1=${fechas.fecha1}&fecha2=${fechas.fecha2}&soloreporte=${fechas.soloreporte}`;
     console.log(`${URL}${file}.php${data}`);
     const response = await fetch(`${URL}${file}.php${data}`);
     let datos = await response.json();
@@ -256,7 +258,7 @@ app.post('/jsonmasivo', async (req, res) => {
   // 2. Procesar cada usuario individualmente
   let guardados = 0;
 
-  usuarios.forEach(usuario => {
+  for(const usuario of usuarios) {
     // a) Filtrar consultas/procedimientos con numDocumentoIdentificacion != null
     let consultas = (usuario.servicios?.consultas || []).filter(
       c => c.numDocumentoIdentificacion !== null && c.numDocumentoIdentificacion !== undefined
@@ -378,7 +380,7 @@ app.post('/jsonmasivo', async (req, res) => {
     }
 
     guardados++;
-  });
+  }
 
   // 3. Abrir la carpeta principal en el explorador de archivos (solo en Windows)
   exec(`explorer "${carpetaReporte}"`);

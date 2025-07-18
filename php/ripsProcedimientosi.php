@@ -30,24 +30,26 @@
 			//mysql_set_charset($enlace,"utf8");
             mysql_query("SET CHARACTER SET utf8 ",$enlace);
             $sql="";
-			$sql.='select evolucion.factura_consulta,"761470060801" as cod_prestador,paciente.tdei,paciente.identificacion,date_format(evolucion.fecha,"%d/%m/%Y") as fecha,';
+			$sql.='select evolucion.factura_consulta,"761470060801" as cod_prestador,paciente.tdei,paciente.identificacion,date_format(evolucion.fecha,"%d/%m/%Y") as fecha,concat_ws(" ",evolucion.fecha,left(hora,5)) as fechaj,evolucion.hora,';
             $sql.='autorizacion_consulta,evolucion.tipoprocedimiento,evolucion.ambito,evolucion.finalidad,personal_que_atiende,evolucion.diagnostico_principal,evolucion.diagnostico_relacionado1,';
             $sql.='evolucion.complicacion,evolucion.forma_realizacion_qx,evolucion.EditRight1 as valor';
             $sql.=' from evolucion';
-            $sql.=' inner join paciente on evolucion.paciente=paciente.historia';
-            $sql.=' inner join procedimientos on evolucion.procedimiento=procedimientos.codigo';
+            $sql.=' left join paciente on evolucion.paciente=paciente.historia';
+            $sql.=' left join procedimientos on evolucion.procedimiento=procedimientos.codigo';
             $sql.=sprintf(" where arips='S' and evolucion.fecha between '%s' and '%s'",$fecha1,$fecha2);
+			if (isset($paciente)) $sql.=sprintf(" and evolucion.identificacion='%s'",$paciente);
             $sql.=' UNION ';
-            $sql.=' select evolucion.factura_consulta,"761470060801" as cod_prestador,cppredata.tdei,cppredata.identificacion,date_format(evolucion.fecha,"%d/%m/%Y") as fecha,';
+            $sql.=' select evolucion.factura_consulta,"761470060801" as cod_prestador,cppredata.tdei,cppredata.identificacion,date_format(evolucion.fecha,"%d/%m/%Y") as fecha,concat_ws(" ",evolucion.fecha,left(hora,5)) as fechaj,evolucion.hora,';
             $sql.='autorizacion_consulta,evolucion.tipoprocedimiento,evolucion.ambito,evolucion.finalidad,personal_que_atiende,evolucion.diagnostico_principal,evolucion.diagnostico_relacionado1,';
             $sql.='evolucion.complicacion,evolucion.forma_realizacion_qx,evolucion.EditRight1';
             $sql.=' from evolucion';
-            $sql.=' inner join cppredata on evolucion.paciente=cppredata.historia';
-            $sql.=' inner join procedimientos on evolucion.procedimiento=procedimientos.codigo';
+            $sql.=' left join cppredata on evolucion.paciente=cppredata.historia';
+            $sql.=' left join procedimientos on evolucion.procedimiento=procedimientos.codigo';
             $sql.=sprintf(" where arips='S' and evolucion.fecha between '%s' and '%s'",$fecha1,$fecha2);
+			if (isset($paciente)) $sql.=sprintf(" and evolucion.identificacion='%s'",$paciente);
 			$sql.=' order by fecha';
 			
-			//echo $sql;
+			//echo json_encode(array("sql"=>$sql));
 			//exit(0);
 			mysql_select_db($database,$enlace);
 			

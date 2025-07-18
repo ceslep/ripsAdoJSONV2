@@ -27,40 +27,30 @@
 				if ($tipo==="undefined") unset($tipo);
 				
 			}	
-	
-			if (isset($_REQUEST['soloreporte'])){
-				$soloreporte=$_REQUEST['soloreporte'];
-				if ($soloreporte==="undefined") unset($soloreporte);
-				
-			}	
-			
-			if(!isset($soloreporte)) $soloreporte=false;
 			//mysql_set_charset($enlace,"utf8");
-			mysql_query("SET CHARACTER SET utf8 ",$enlace);
+            mysql_query("SET CHARACTER SET utf8 ",$enlace);
+			$sql="select '761470060801' as cod_prestador,'MARIA EUGENIA LONDOÑO GALVIS' as razon_social,'CC' as tdei,'31405200' as cedula,evolucion.factura_consulta,date_format(evolucion.fecha,'%d/%m/%Y') as fecha_factura,";
+			$sql.="date_format('$fecha1','%d/%m/%Y') as fecha_inicial,date_format('$fecha2','%d/%m/%Y') as fecha_final,'76147' as codAdmin,'MUNICIPIO CARTAGO' as nomEntidad,'' as numContrato,'' as planBeneficios,0 as numPoliza,0 as copago,";
+			$sql.="0 as comision,0 as total_descuentos,0 as netoApagar from evolucion";
+         
+			$sql.=sprintf(" where evolucion.arips='S' and evolucion.fecha between '%s' and '%s'",$fecha1,$fecha2);
+			//$sql.=" group by evolucion.identificacion";
+           
+			$sql.=' order by evolucion.fecha';
 			
-			
-			$sql="Select evolucion.citasind as ind,total_pacientes.identificacion,total_pacientes.nombres,evolucion.fecha,abonos.forma_de_pago,if(abonos.valor_abono is null,0,abonos.valor_abono) as valor_abono,abonos.items,abonos.tipo_pago,arips from evolucion";
-			$sql.=" inner join total_pacientes on evolucion.paciente=total_pacientes.historia";
-			$sql.=" left join abonos on evolucion.paciente=abonos.paciente and abonos.fecha=evolucion.fecha";
-			$sql.=" where 1=1";
-			$sql.=" and evolucion.fecha between '$fecha1' and '$fecha2'";
-			if ($soloreporte=="true") $sql.=" and evolucion.arips='S'";
-			$sql.=" group by evolucion.identificacion,evolucion.fecha";
-			$sql.=" order by evolucion.fecha desc,total_pacientes.nombres";
-			
+			//echo $sql;
+			//exit(0);
 			mysql_select_db($database,$enlace);
 			
 			
-		//	echo $sql;
+		
 			$datos=array();
 			if ($resultado=mysql_query($sql,$enlace)){
 			
 			$num_fields=0;
 			while($dato=mysql_fetch_assoc($resultado)) //$datos[]=$dato;
 			{
-				
-			
-			$dato['nombres']=utf8_encode($dato['nombres']);
+
 			//$dato['procedimiento']=utf8_encode($dato['procedimiento']);
 			
 			$datos[]=$dato;
@@ -68,7 +58,7 @@
 			}
 			}
 			else{
-				echo $sql;
+				
 				$datos=array("Tipo"=>"Error","Mensaje"=>mysql_error($enlace),"SQL"=>$sql);
 				
 			}

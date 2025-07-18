@@ -51,8 +51,8 @@ $(document).ready(() => {
 	const getCitas = async () => {
 
 		try {
-
-			let data = { fecha1: $("#fecha1").val(), fecha2: $("#fecha2").val() };
+			const soloreporte= $("#soloreporte").prop("checked");
+			let data = { fecha1: $("#fecha1").val(), fecha2: $("#fecha2").val(),soloreporte };
 			const response = await fetch(url + "citas", {
 				method: 'POST', // or 'PUT'
 				body: JSON.stringify(data), // data can be `string` or {object}!
@@ -113,8 +113,9 @@ $(document).ready(() => {
 			if (datoAgenda.forma_de_pago != null)
 				consignacion += datoAgenda.forma_de_pago == "CONSIGNACION" ? parseFloat(datoAgenda.valor_abono) : 0;
 			total += typeof datoAgenda.valor_abono != undefined ? parseFloat(datoAgenda.valor_abono) : 0;
-			if (datoAgenda.forma_de_pago != null)
-				checked = (datoAgenda.forma_de_pago.indexOf("TRANSFERENCIA") >= 0) || (datoAgenda.forma_de_pago.indexOf("TARJETA", 0) >= 0) || (datoAgenda.forma_de_pago == "CONSIGNACION") || (datoAgenda.arips == "S") ? "checked" : "";
+			/* if (datoAgenda.forma_de_pago != null)
+				checked = (datoAgenda.forma_de_pago.indexOf("TRANSFERENCIA") >= 0) || (datoAgenda.forma_de_pago.indexOf("TARJETA", 0) >= 0) || (datoAgenda.forma_de_pago == "CONSIGNACION") || (datoAgenda.arips == "S") ? "checked" : ""; */
+			checked=datoAgenda.arips == "S" ? "checked" : "";
 			if (checked == "checked")
 				seleccionado += parseFloat(datoAgenda.valor_abono);
 			let fpagos = (datoAgenda.forma_de_pago != null) ? datoAgenda.forma_de_pago : "";
@@ -122,7 +123,7 @@ $(document).ready(() => {
 			<td>
 			  <h5>
 			  <div class="form-check">
-			  <input type="checkbox" class="form-check-input position-static chk" ${checked} data-value=${datoAgenda.valor_abono}></h5>
+			  <input type="checkbox" class="form-check-input position-static chk mx-auto text-center" ${checked} data-value=${datoAgenda.valor_abono}></h5>
 			  </div>
 			</td> 
 			<td>
@@ -789,7 +790,7 @@ let dataJSON = {
 	"numFactura": null,
 	"tipoNota": "RS",
 	"numNota": "FE-1000",
-	usuarios:[]
+	usuarios: []
 };
 
 
@@ -819,6 +820,9 @@ document.getElementById("btnJSON").addEventListener('click', async e => {
 
 
 	document.getElementById("spnjson").classList.remove("d-none");
+	document.getElementById("guardarJSON").classList.remove("d-none");
+	document.getElementById("guardarJSONF").classList.add("d-none");
+
 	let data = { fecha1: $("#fecha1").val(), fecha2: $("#fecha2").val() };
 	const response = await fetch(url + "ripsUsuarios", {
 		method: 'POST',
@@ -830,128 +834,159 @@ document.getElementById("btnJSON").addEventListener('click', async e => {
 	const datos = await response.json();
 
 	if (datos.length) {
-		const fecha1 = document.getElementById("fecha1").value;
-		const fecha2 = document.getElementById("fecha2").value;
+	const fecha1 = document.getElementById("fecha1").value;
+	const fecha2 = document.getElementById("fecha2").value;
 
-		const usuarios = [];
-		const promises = datos.map(async (dato, index) => {
-			const { identificacion, tdei, tu, sexo, fecnac, codepto,codmunic, apellido1, apellido2, nombre1, nombre2 } = dato;
+	const usuarios = [];
+	const promises = datos.map(async (dato, index) => {
+		const { identificacion, tdei, tu, sexo, fecnac, codepto, codmunic, apellido1, apellido2, nombre1, nombre2 } = dato;
 
-			// Fetch consultas
-			const consultasResponse = await fetch(url + "ripsConsultai", {
-				method: 'POST',
-				body: JSON.stringify({ paciente: identificacion, fecha1, fecha2 }),
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			});
-			const dconsultas = await consultasResponse.json();
-			const dataConsultas = dconsultas.map((consulta, index2) => {
-				const { cod_prestador, fechaj, hora, diagnostico_principal, diagnostico_relacionado1, diagnostico_relacionado2, diagnostico_relacionado3, tipo_dx, valor_consulta,factura_consulta,EditRight1 } = consulta;
-				return {
-					codPrestador: cod_prestador,
-					fechaInicioAtencion: fechaj,
-					numAutorizacion: "",
-					codConsulta: "890304",
-					modalidadGrupoServicioTecSal: "01",
-					grupoServicios: "01",
-					codServicio: 397,
-					finalidadTecnologiaSalud: "16",
-					causaMotivoAtencion: "38",
-					codDiagnosticoPrincipal: diagnostico_principal==""?"K088":diagnostico_principal,
-					codDiagnosticoRelacionado1: null,
-					codDiagnosticoRelacionado2: null,
-					codDiagnosticoRelacionado3: null,
-					tipoDiagnosticoPrincipal: `0${tipo_dx}`,
-					tipoDocumentoIdentificacion: "CC",
-					numDocumentoIdentificacion: identificacion,
-					vrServicio: parseFloat(valor_consulta??"0"),
-					conceptoRecaudo: "05",
-					valorPagoModerador: EditRight1,
-					numFEVPagoModerador: factura_consulta,
-					consecutivo:  1,
-				};
-			});
-
-			// Fetch procedimientos
-			const procedimientosResponse = await fetch(url + "ripsProcedimientosi", {
-				method: 'POST',
-				body: JSON.stringify({ paciente: identificacion, fecha1, fecha2 }),
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			});
-			const dprocedimientos = await procedimientosResponse.json();
-			const dataProcedimientos = dprocedimientos.map((procedimiento, index3) => {
-				const { cod_prestador, fechaj, hora, diagnostico_principal, diagnostico_relacionado1, valor,factura_consulta,EditRight1 } = procedimiento;
-				return {
-					codPrestador: cod_prestador,
-					fechaInicioAtencion: fechaj,
-					idMIPRES: null,
-					numAutorizacion: null,
-					codProcedimiento: "890304",
-					viaIngresoServicioSalud: "01",
-					modalidadGrupoServicioTecSal: "01",
-					grupoServicios: "04",
-					codServicio: 338,
-					finalidadTecnologiaSalud: "44",
-					tipoDocumentoIdentificacion: "CC",
-					numDocumentoIdentificacion: identificacion,
-					codDiagnosticoPrincipal:  diagnostico_principal==""?"K088":diagnostico_principal,
-					codDiagnosticoRelacionado: null,
-					codComplicacion: null,
-					vrServicio: parseFloat(valor??"0"),
-					conceptoRecaudo: "05",
-					valorPagoModerador: valor,
-					numFEVPagoModerador: factura_consulta,
-					consecutivo:  1
-				};
-			});
-
-			// Push user data
-			usuarios.push({
-				tipoDocumentoIdentificacion: tdei,
+		// Fetch consultas
+		const consultasResponse = await fetch(url + "ripsConsultai", {
+			method: 'POST',
+			body: JSON.stringify({ paciente: identificacion, fecha1, fecha2 }),
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		const dconsultas = await consultasResponse.json();
+		const dataConsultas = dconsultas.map((consulta) => {
+			const { cod_prestador, fechaj, diagnostico_principal, tipo_dx } = consulta;
+			return {
+				codPrestador: cod_prestador,
+				fechaInicioAtencion: fechaj,
+				numAutorizacion: "",
+				codConsulta: "890304",
+				modalidadGrupoServicioTecSal: "01",
+				grupoServicios: "01",
+				codServicio: 397,
+				finalidadTecnologiaSalud: "16",
+				causaMotivoAtencion: "38",
+				codDiagnosticoPrincipal: diagnostico_principal === "" ? "K088" : diagnostico_principal,
+				codDiagnosticoRelacionado1: null,
+				codDiagnosticoRelacionado2: null,
+				codDiagnosticoRelacionado3: null,
+				tipoDiagnosticoPrincipal: `0${tipo_dx}`,
+				tipoDocumentoIdentificacion: "CC",
 				numDocumentoIdentificacion: identificacion,
-				//primerApellido: apellido1,
-				//segundoApellido: apellido2,
-				//primerNombre: nombre1,
-				//segundoNombre: nombre2,
-				tipoUsuario: `0${tu}`,
-				fechaNacimiento: fecnac,
-				codSexo: sexo,
-				codPaisResidencia: "170",
-				codMunicipioResidencia: `${codepto??76}${codmunic??147}`,
-				codZonaTerritorialResidencia: "01",
-				incapacidad: "NO",
-				codPaisOrigen: "170",
+				vrServicio: 0,
+				conceptoRecaudo: "05",
+				valorPagoModerador: 0,
+				numFEVPagoModerador: null,
 				consecutivo: 1,
-				servicios: {
-					consultas: dataConsultas,
-					procedimientos: dataProcedimientos,
-				}
-			});
-			if (dataConsultas.length===0) usuarios.pop()
-				else 
-				if (dataProcedimientos.length===0) usuarios.pop()	
+			};
 		});
 
-		// Wait for all promises to resolve
-		await Promise.all(promises);
+		// Fetch procedimientos
+		const procedimientosResponse = await fetch(url + "ripsProcedimientosi", {
+			method: 'POST',
+			body: JSON.stringify({ paciente: identificacion, fecha1, fecha2 }),
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		const dprocedimientos = await procedimientosResponse.json();
+		const dataProcedimientos = dprocedimientos.map((procedimiento) => {
+			const { cod_prestador, fechaj, diagnostico_principal, valor } = procedimiento;
+			return {
+				codPrestador: cod_prestador,
+				fechaInicioAtencion: fechaj,
+				idMIPRES: null,
+				numAutorizacion: null,
+				codProcedimiento: "890304",
+				viaIngresoServicioSalud: "01",
+				modalidadGrupoServicioTecSal: "01",
+				grupoServicios: "04",
+				codServicio: 338,
+				finalidadTecnologiaSalud: "44",
+				tipoDocumentoIdentificacion: "CC",
+				numDocumentoIdentificacion: identificacion,
+				codDiagnosticoPrincipal: diagnostico_principal === "" ? "K088" : diagnostico_principal,
+				codDiagnosticoRelacionado: null,
+				codComplicacion: null,
+				vrServicio: 0,
+				conceptoRecaudo: "05",
+				valorPagoModerador: 0,
+				numFEVPagoModerador: null,
+				consecutivo: 1
+			};
+		});
 
-		// Populate the textarea and show the modal
-		dataJSON.usuarios =  usuarios ;
-		const textAreaJSON = document.getElementById("textAreaJSON");
-		textAreaJSON.value = JSON.stringify(dataJSON, null, 2);
-
-		if (!modalJSON) {
-			modalJSON = new bootstrap.Modal(modalJSONelement);
+		// Eliminar duplicados y limitar a 1 en consultas
+		const consultasUnicas = [];
+		const setConsultas = new Set();
+		for (const item of dataConsultas) {
+			const key = `${item.numDocumentoIdentificacion}-${item.fechaInicioAtencion}-${item.codConsulta}`;
+			if (!setConsultas.has(key)) {
+				setConsultas.add(key);
+				consultasUnicas.push(item);
+			}
 		}
-		const jsonViewer = document.querySelector("andypf-json-viewer");
-		jsonViewer.data = dataJSON;
-		jsonViewer.expanded = 5;
-		modalJSON.show();
-		document.getElementById("spnjson").classList.add("d-none");
+		const consultaFinal = consultasUnicas.length > 0 ? [consultasUnicas[0]] : [];
+
+		// Eliminar duplicados y limitar a 1 en procedimientos
+		const procedimientosUnicos = [];
+		const setProcedimientos = new Set();
+		for (const item of dataProcedimientos) {
+			const key = `${item.numDocumentoIdentificacion}-${item.fechaInicioAtencion}-${item.codProcedimiento}`;
+			if (!setProcedimientos.has(key)) {
+				setProcedimientos.add(key);
+				procedimientosUnicos.push(item);
+			}
+		}
+		const procedimientoFinal = procedimientosUnicos.length > 0 ? [procedimientosUnicos[0]] : [];
+
+		// Agregar al array final si ambos tienen al menos un ítem
+		usuarios.push({
+			tipoDocumentoIdentificacion: tdei,
+			numDocumentoIdentificacion: identificacion,
+			tipoUsuario: `0${tu}`,
+			fechaNacimiento: fecnac,
+			codSexo: sexo,
+			codPaisResidencia: "170",
+			codMunicipioResidencia: `${codepto ?? 76}${codmunic ?? 147}`,
+			codZonaTerritorialResidencia: "01",
+			incapacidad: "NO",
+			codPaisOrigen: "170",
+			consecutivo: 1,
+			servicios: {
+				consultas: consultaFinal,
+				procedimientos: procedimientoFinal,
+			}
+		});
+		if (consultaFinal.length === 0) usuarios.pop()
+		else if (procedimientoFinal.length === 0) usuarios.pop()
+	});
+
+	// Esperar a que todas las promesas se resuelvan
+	await Promise.all(promises);
+
+	// Mostrar JSON en modal
+	dataJSON.usuarios = usuarios;
+	dataJSON.usuarios=[...dataJSON.usuarios.map((u,index)=>{
+		u.consecutivo= index + 1;
+		return u;
+	})];
+	const numfactura=prompt("Introduzca el número de factura", "");
+	if (numfactura) 
+		dataJSON.numFactura = numfactura;
+		
+	dataJSON.tipoNota = null;
+	dataJSON.numNota=null;
+
+	const textAreaJSON = document.getElementById("textAreaJSON");
+	textAreaJSON.value = JSON.stringify(dataJSON, null, 2);
+
+	if (!modalJSON) {
+		modalJSON = new bootstrap.Modal(modalJSONelement);
 	}
+	const jsonViewer = document.querySelector("andypf-json-viewer");
+	jsonViewer.data = dataJSON;
+	jsonViewer.expanded = 5;
+	modalJSON.show();
+	document.getElementById("spnjson").classList.add("d-none");
+}
+
 
 });
 
@@ -960,6 +995,8 @@ document.getElementById("btnJSONFactura").addEventListener('click', async e => {
 
 
 	document.getElementById("spnjson").classList.remove("d-none");
+	document.getElementById("guardarJSON").classList.add("d-none");
+	document.getElementById("guardarJSONF").classList.remove("d-none");
 	let data = { fecha1: $("#fecha1").val(), fecha2: $("#fecha2").val() };
 	const response = await fetch(url + "ripsUsuarios", {
 		method: 'POST',
@@ -976,7 +1013,7 @@ document.getElementById("btnJSONFactura").addEventListener('click', async e => {
 
 		const usuarios = [];
 		const promises = datos.map(async (dato, index) => {
-			const { identificacion, tdei, tu, sexo, fecnac, codepto,codmunic, apellido1, apellido2, nombre1, nombre2 } = dato;
+			const { identificacion, tdei, tu, sexo, fecnac, codepto, codmunic, apellido1, apellido2, nombre1, nombre2 } = dato;
 
 			// Fetch consultas
 			const consultasResponse = await fetch(url + "ripsConsultai", {
@@ -987,8 +1024,8 @@ document.getElementById("btnJSONFactura").addEventListener('click', async e => {
 				}
 			});
 			const dconsultas = await consultasResponse.json();
-			const dataConsultas = dconsultas.filter(f=>f.factura_consulta).map((consulta, index2) => {
-				const { cod_prestador, fechaj, hora, diagnostico_principal, diagnostico_relacionado1, diagnostico_relacionado2, diagnostico_relacionado3, tipo_dx, valor_consulta,factura_consulta,EditRight1 } = consulta;
+			const dataConsultas = dconsultas.filter(f => f.factura_consulta).map((consulta, index2) => {
+				const { cod_prestador, fechaj, hora, diagnostico_principal, diagnostico_relacionado1, diagnostico_relacionado2, diagnostico_relacionado3, tipo_dx, valor_consulta, factura_consulta, EditRight1 } = consulta;
 				return {
 					codPrestador: cod_prestador,
 					fechaInicioAtencion: fechaj,
@@ -999,14 +1036,14 @@ document.getElementById("btnJSONFactura").addEventListener('click', async e => {
 					codServicio: 397,
 					finalidadTecnologiaSalud: "16",
 					causaMotivoAtencion: "38",
-					codDiagnosticoPrincipal: diagnostico_principal==""?"K088":diagnostico_principal,
+					codDiagnosticoPrincipal: diagnostico_principal == "" ? "K088" : diagnostico_principal,
 					codDiagnosticoRelacionado1: null,
 					codDiagnosticoRelacionado2: null,
 					codDiagnosticoRelacionado3: null,
 					tipoDiagnosticoPrincipal: `0${tipo_dx}`,
 					tipoDocumentoIdentificacion: "CC",
 					numDocumentoIdentificacion: identificacion,
-					vrServicio: parseFloat(valor_consulta??"0"),
+					vrServicio: parseFloat(valor_consulta ?? "0"),
 					conceptoRecaudo: "05",
 					valorPagoModerador: 0,
 					numFEVPagoModerador: factura_consulta,
@@ -1023,8 +1060,8 @@ document.getElementById("btnJSONFactura").addEventListener('click', async e => {
 				}
 			});
 			const dprocedimientos = await procedimientosResponse.json();
-			const dataProcedimientos = dprocedimientos.filter(f=>f.factura_consulta).map((procedimiento, index3) => {
-				const { cod_prestador, fechaj, hora, diagnostico_principal, diagnostico_relacionado1, valor,factura_consulta,EditRight1 } = procedimiento;
+			const dataProcedimientos = dprocedimientos.filter(f => f.factura_consulta).map((procedimiento, index3) => {
+				const { cod_prestador, fechaj, hora, diagnostico_principal, diagnostico_relacionado1, valor, factura_consulta, EditRight1 } = procedimiento;
 				return {
 					codPrestador: cod_prestador,
 					fechaInicioAtencion: fechaj,
@@ -1038,10 +1075,10 @@ document.getElementById("btnJSONFactura").addEventListener('click', async e => {
 					finalidadTecnologiaSalud: "44",
 					tipoDocumentoIdentificacion: "CC",
 					numDocumentoIdentificacion: identificacion,
-					codDiagnosticoPrincipal:  diagnostico_principal==""?"K088":diagnostico_principal,
+					codDiagnosticoPrincipal: diagnostico_principal == "" ? "K088" : diagnostico_principal,
 					codDiagnosticoRelacionado: null,
 					codComplicacion: null,
-					vrServicio: parseFloat(valor??"0"),
+					vrServicio: parseFloat(valor ?? "0"),
 					conceptoRecaudo: "05",
 					valorPagoModerador: 0,
 					numFEVPagoModerador: factura_consulta,
@@ -1061,7 +1098,7 @@ document.getElementById("btnJSONFactura").addEventListener('click', async e => {
 				fechaNacimiento: fecnac,
 				codSexo: sexo,
 				codPaisResidencia: "170",
-				codMunicipioResidencia: `${codepto??76}${codmunic??147}`,
+				codMunicipioResidencia: `${codepto ?? 76}${codmunic ?? 147}`,
 				codZonaTerritorialResidencia: "01",
 				incapacidad: "NO",
 				codPaisOrigen: "170",
@@ -1071,16 +1108,16 @@ document.getElementById("btnJSONFactura").addEventListener('click', async e => {
 					procedimientos: dataProcedimientos,
 				}
 			});
-			if (dataConsultas.length===0) usuarios.pop()
-				else 
-				if (dataProcedimientos.length===0) usuarios.pop()	
+			if (dataConsultas.length === 0) usuarios.pop()
+			else
+				if (dataProcedimientos.length === 0) usuarios.pop()
 		});
 
 		// Wait for all promises to resolve
 		await Promise.all(promises);
 
 		// Populate the textarea and show the modal
-		dataJSON.usuarios =  usuarios ;
+		dataJSON.usuarios = usuarios;
 		const textAreaJSON = document.getElementById("textAreaJSON");
 		textAreaJSON.value = JSON.stringify(dataJSON, null, 2);
 
@@ -1093,6 +1130,26 @@ document.getElementById("btnJSONFactura").addEventListener('click', async e => {
 		modalJSON.show();
 		document.getElementById("spnjson").classList.add("d-none");
 	}
+	else {
+		document.getElementById("spnjson").classList.add("d-none");
+		Swal.fire({
+			title:'Información',
+			text:'No hay datos para generar el JSON',
+			icon:'warning',
+			confirmButtonText: 'Aceptar',
+			allowOutsideClick: false,
+			allowEscapeKey: false,
+			allowEnterKey: false,
+			showCloseButton: true,
+			draggable: true,
+			timer:5000
+
+
+
+
+		})
+		
+	}
 
 });
 
@@ -1100,7 +1157,7 @@ document.getElementById("btnJSONFactura").addEventListener('click', async e => {
 
 
 document.getElementById("guardarJSON").addEventListener('click', async e => {
-	const jsonData=document.getElementById("textAreaJSON").value;
+	const jsonData = document.getElementById("textAreaJSON").value;
 	const blob = new Blob([jsonData], { type: 'application/json' });
 
 	const now = new Date();
@@ -1118,38 +1175,41 @@ document.getElementById("guardarJSON").addEventListener('click', async e => {
 
 	// Eliminar el enlace después de descargar
 	document.body.removeChild(a);
-	
+
 });
 
 
 document.getElementById("guardarJSONF").addEventListener('click', async e => {
-	const jsonData=document.getElementById("textAreaJSON").value;
+	const jsonData = document.getElementById("textAreaJSON").value;
 	try {
-    const response = await fetch(url+'jsonmasivo', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: jsonData
-    });
+		const response = await fetch(url + 'jsonmasivo', {
+			method: 'POST',
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json',
+				'Content-Length': jsonData.length.toString()
 
-    if (!response.ok) {
-      throw new Error('Error en la respuesta del servidor');
-    }
+			},
+			body: jsonData
+		});
 
-    const respuestaServidor = await response.json();
-    console.log('Respuesta del servidor:', respuestaServidor);
+		if (!response.ok) {
+			throw new Error('Error en la respuesta del servidor');
+		}
+
+		const respuestaServidor = await response.json();
+		console.log('Respuesta del servidor:', respuestaServidor);
 		swal.fire({
-	  title: 'Éxito',
-	  text: 'Carpetas JSON creadas correctamente',
-	  icon: 'success'
-	});  
+			title: 'Éxito',
+			text: 'Carpetas JSON creadas correctamente',
+			icon: 'success'
+		});
 
 
 
-  } catch (error) {
-    console.error('Error al enviar el JSON:', error);
-  }
+	} catch (error) {
+		console.error('Error al enviar el JSON:', error);
+	}
 
-	
+
 });

@@ -48,7 +48,7 @@ const getDatai = async (file, dfechas) => {
   console.log(dfechas);
   console.log(`${URL}${file}.php`);
   try {
-    let data = `?paciente=${dfechas.paciente}&fecha1=${dfechas.fecha1}&fecha2=${dfechas.fecha2}`;
+    let data = `?paciente=${dfechas.paciente}&fecha1=${dfechas.fecha1}&fecha2=${dfechas.fecha2}&fecha=${dfechas.fecha}`;
     console.log(`${URL}${file}.php${data}`);
     const response = await fetch(`${URL}${file}.php${data}`);
     let datos = await response.json();
@@ -196,6 +196,15 @@ function normalizarFactura(nombre) {
   return `FEV${match[1]}`;
 }
 
+
+function normalizarFactura2(numFactura) {
+  // Ej: "FEV-0054" => "FEV54", "FEV-0001" => "FEV1"
+  const match = numFactura.match(/^([A-Z]+)[-]?0*(\d+)$/i);
+  if (!match) return numFactura.replace(/[^a-zA-Z0-9]/g, '');
+  const serie = match[1].toUpperCase();
+  const numero = parseInt(match[2], 10); // convierte "0054" → 54
+  return `${serie}${numero}`;
+}
 /** 
  * Convierte "FEV-0001" → "dian_FEV1" (para buscar XML en C:\facturas_dian).
  */
@@ -257,13 +266,17 @@ app.post('/jsonmasivo', async (req, res) => {
 
   // 2. Procesar cada usuario individualmente
   let guardados = 0;
-
-  for(const usuario of usuarios) {
+  let i = 0;
+  for (const usuario of usuarios) {
+   
+    let consultas=[];
+    console.log('Procesando usuario:', usuario.numDocumentoIdentificacion);
     // a) Filtrar consultas/procedimientos con numDocumentoIdentificacion != null
-    let consultas = (usuario.servicios?.consultas || []).filter(
+     consultas = (usuario.servicios?.consultas || []).filter(
       c => c.numDocumentoIdentificacion !== null && c.numDocumentoIdentificacion !== undefined
     );
-    let procedimientos = (usuario.servicios?.procedimientos || []).filter(
+    let procedimientos=[];
+    procedimientos = (usuario.servicios?.procedimientos || []).filter(
       p => p.numDocumentoIdentificacion !== null && p.numDocumentoIdentificacion !== undefined
     );
 
@@ -279,13 +292,15 @@ app.post('/jsonmasivo', async (req, res) => {
       originalNumFactura = procedimientos[0].numFEVPagoModerador;
     }
 
+    console.log('Factura original:', originalNumFactura);
+
     if (!originalNumFactura) {
       console.log('Usuario omitido (sin numFEVPagoModerador válido):', usuario.numDocumentoIdentificacion);
-      return; // Omite este usuario
+      continue; // Omite este usuario
     }
 
     // d) Normalizar la factura (ej: "FEV-0001" → "FEV1")
-    const facturaNormalizada = normalizarFactura(originalNumFactura);
+    const facturaNormalizada = normalizarFactura2(originalNumFactura);
 
     // e) Calcular totales de vrServicio
     let totalConsultas = consultas.reduce((sum, c) => sum + (parseFloat(c.vrServicio) || 0), 0);
@@ -353,7 +368,7 @@ app.post('/jsonmasivo', async (req, res) => {
     //    Nombre: <facturaNormalizada>_ <tipoDocumentoIdentificacion><numDocumentoIdentificacion>
     const carpetaUsuario = path.join(
       carpetaReporte,
-      `${facturaNormalizada}_${usuario.tipoDocumentoIdentificacion || 'X'}${usuario.numDocumentoIdentificacion}`
+      `${facturaNormalizada}_${usuario.tipoDocumentoIdentificacion || 'X'}${usuario.numDocumentoIdentificacion}${i}`
     );
     if (!fs.existsSync(carpetaUsuario)) {
       fs.mkdirSync(carpetaUsuario, { recursive: true });
@@ -380,6 +395,7 @@ app.post('/jsonmasivo', async (req, res) => {
     }
 
     guardados++;
+    i++
   }
 
   // 3. Abrir la carpeta principal en el explorador de archivos (solo en Windows)
